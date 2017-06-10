@@ -254,9 +254,17 @@ Longnums Longnums::operator+(Longnums X)
   int maxlength = std::max(digits.length(), X.digits.length());
   std::string ans(maxlength, '0');
   int num1, num2;
+  bool ansneg = false;
   int carryover = 0;
   if(this->negative == X.negative){
     //one must add
+    if(this->negative){
+      ansneg = true;
+    }
+
+    (*this) = this->mod();
+    X = X.mod();
+
     if(digits.length() == X.digits.length()){
       for(int i = digits.length() - 1; i >= 0; i--){
         num1 = int(digits[i]) - 48;
@@ -272,6 +280,7 @@ Longnums Longnums::operator+(Longnums X)
       }
       Longnums answer;
       answer = ans;
+      answer.negative = ansneg;
       return answer;
     }
 
