@@ -14,11 +14,18 @@ public:
 
   //comparing numbers
   bool operator<(Longnums);
-  /*
-  bool operator<(Longnums);
+  bool operator>(Longnums);
   bool operator==(Longnums);
 
-  */
+  //Equality function
+  Longnums(Longnums&);
+  Longnums(std::string&);
+
+  //modulus
+  Longnums mod();
+
+  //primary operations- adding, subtracting, multiplying and dividing
+  Longnums operator+(Longnums);
 };
 
 #endif // LONGNUMS_H
