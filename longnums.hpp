@@ -26,6 +26,7 @@ public:
 
   //primary operations- adding, subtracting, multiplying and dividing
   Longnums operator+(Longnums);
+  Longnums operator-(Longnums);
 };
 
 #endif // LONGNUMS_H
