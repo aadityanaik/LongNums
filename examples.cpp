@@ -9,23 +9,20 @@ int main()
   //input
   x.get();
   y.get();
-  z.get();
 
   //output
   x.put();
   std::cout << std::endl;
   y.put();
   std::cout << std::endl;
-  z.put();
-  std::cout << std::endl;
-  std::cout << std::endl;
 
   //addition
-  (x+y+z).put();
+  (x+y).put();
   std::cout << std::endl;
   std::cout << std::endl;
 
   //subtraction
   (x-y).put();
   std::cout << std::endl;
+
 }

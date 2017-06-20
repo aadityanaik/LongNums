@@ -1,8 +1,10 @@
 #ifndef LONGNUMS_H
 #define LONGNUMS_H
 
+#include <vector>
+
 class Longnums {
-  std::string digits;
+  std::vector<int> digits;
   bool negative;
 
 public:
@@ -19,7 +21,6 @@ public:
 
   //Equality function
   Longnums(Longnums&);
-  Longnums(std::string&);
 
   //modulus
   Longnums mod();
@@ -27,6 +28,7 @@ public:
   //primary operations- adding, subtracting, multiplying and dividing
   Longnums operator+(Longnums);
   Longnums operator-(Longnums);
+  Longnums operator*(Longnums);
 };
 
 #endif // LONGNUMS_H
