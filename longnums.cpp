@@ -29,7 +29,7 @@ Longnums Longnums::mod()
 //input method
 int Longnums::get()
 {
-  digits.pop_back();
+  digits.erase(digits.begin(), digits.end());
   char c;
   //denotes each individual digit or the sign
 
@@ -68,7 +68,7 @@ int Longnums::get()
 
     else if(c == '0'){
       if(!digits.empty()){
-        digits.push_back(c);
+        digits.push_back(int(c) - 48);
       }
     }
 
@@ -251,7 +251,7 @@ Longnums Longnums::operator+(Longnums X)
   std::vector<int> sum;
   bool ansneg = false;
   int carryover = 0;
-  int maxlength = std::max(digits.size(), X.digits.size());
+  std::vector<int> big, small;
   if(this->negative == X.negative){
     //one must add
     if(this->negative){
@@ -259,27 +259,37 @@ Longnums Longnums::operator+(Longnums X)
       //the ans will be negative
     }
 
-    if(digits.size() != X.digits.size()){
-      std::vector<int> res;
-      for(int i = 1; i <= (maxlength - digits.size()); i++){
-        res.push_back(0);
+    if(X > (*this)){
+      if(negative){
+        big = digits;
+        small = X.digits;
       }
-
-      digits.insert(digits.begin(), res.begin(), res.end());
-
-      res.clear();
-      for(int i = 1; i <= (maxlength - X.digits.size()); i++){
-        res.push_back(0);
+      else{
+        big = X.digits;
+        small = digits;
       }
-
-      X.digits.insert(X.digits.begin(), res.begin(), res.end());
     }
+    else{
+      if(!negative){
+        big = digits;
+        small = X.digits;
+      }
+      else{
+        big = X.digits;
+        small = digits;
+      }
+    }
+
+    while(big.size() != small.size()){
+      small.insert(small.begin(), 0);
+    }
+
     int temp = 0;
 
-    for(int i = digits.size() - 1; i >= 0; i--){
-      temp = ((digits[i] + X.digits[i] + carryover) % 10);
+    for(int i = big.size() - 1; i >= 0; i--){
+      temp = ((big[i] + small[i] + carryover) % 10);
 
-      carryover = (digits[i] + X.digits[i] + carryover) / 10;
+      carryover = (big[i] + small[i] + carryover) / 10;
 
       sum.insert(sum.begin(), temp);
     }
@@ -347,7 +357,7 @@ Longnums Longnums::operator-(Longnums X)
 
     std::vector<int> res;
 
-    for(int i = 1; i <= (maxlength - small.size()); i++){
+    while(big.size() != small.size()){
       small.insert(small.begin(), 0);
     }
 
@@ -386,4 +396,40 @@ Longnums Longnums::operator-(Longnums X)
     answer = (*this) + number;
     return answer;
   }
+}
+
+Longnums Longnums::operator*(Longnums X)
+{
+  Longnums answer;
+  std::vector<Longnums> product(X.digits.size());
+  int carryover = 0;
+  int prod_temp = 0, count = 0;
+
+  for(auto multiplier = X.digits.end() - 1; multiplier >= X.digits.begin(); multiplier--){
+    product[count].digits.pop_back();
+    for(int i = 0; i < count; i++){
+      product[count].digits.push_back(0);
+    }
+
+    for(auto multiplicand = digits.end() - 1; multiplicand >= digits.begin(); multiplicand--){
+      prod_temp = ((*multiplicand) * (*multiplier)) + carryover;
+      carryover = prod_temp / 10;
+      prod_temp %= 10;
+      product[count].digits.insert(product[count].digits.begin(), prod_temp);
+    }
+    count++;
+  }
+
+  for(auto iter = product.begin(); iter < product.end(); iter++){
+    answer = answer + (*iter);
+  }
+
+  if(negative == X.negative){
+    answer.negative = false;
+  }
+  else{
+    answer.negative = true;
+  }
+
+  return answer;
 }

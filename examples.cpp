@@ -4,25 +4,36 @@
 int main()
 {
   //examples for 3 numbers
-  Longnums x, y, z;
+  Longnums x, y;
 
-  //input
-  x.get();
-  y.get();
+  do{
+    //input
+    x.get();
+    y.get();
 
-  //output
-  x.put();
-  std::cout << std::endl;
-  y.put();
-  std::cout << std::endl;
+    //output
+    x.put();
+    std::cout << std::endl;
+    y.put();
+    std::cout << std::endl;
+    std::cout << std::endl;
 
-  //addition
-  (x+y).put();
-  std::cout << std::endl;
-  std::cout << std::endl;
+    //addition
+    std::cout << "Addition" << std::endl;
+    (x+y).put();
+    std::cout << std::endl;
+    std::cout << std::endl;
 
-  //subtraction
-  (x-y).put();
-  std::cout << std::endl;
+    //subtraction
+    std::cout << "Subtraction" << std::endl;
+    (x-y).put();
+    std::cout << std::endl;
+    std::cout << std::endl;
 
+    //multiplication
+    std::cout << "Multiplication" << std::endl;
+    (x * y).put();
+    std::cout << std::endl;
+    std::cout << std::endl;
+  }while(1);
 }
