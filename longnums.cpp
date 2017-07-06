@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 #include "longnums.hpp"
 
@@ -32,6 +33,7 @@ int Longnums::get()
   digits.erase(digits.begin(), digits.end());
   char c;
   //denotes each individual digit or the sign
+START:
 
   std::cin.get(c);
 
@@ -54,10 +56,14 @@ int Longnums::get()
     negative = false;
   }
 
-  else{
+  else if(c != '\n'){
     std::cerr << std::endl << "No such sign" << std::endl;
     return 1;
     //error
+  }
+
+  else{
+    goto START;
   }
 
   while(true){
@@ -401,6 +407,11 @@ Longnums Longnums::operator-(Longnums X)
 Longnums Longnums::operator*(Longnums X)
 {
   Longnums answer;
+
+  if(X.digits[0] == 0){
+    return answer;
+  }
+
   std::vector<Longnums> product(X.digits.size());
   int carryover = 0;
   int prod_temp = 0, count = 0;
@@ -432,4 +443,110 @@ Longnums Longnums::operator*(Longnums X)
   }
 
   return answer;
+}
+
+Longnums Longnums::operator*(int X)
+{
+  int carryover = 0, temp = 0;
+  std::vector<int> product;
+  Longnums answer;
+
+  if(X == 0){
+    return answer;
+  }
+
+  for(auto iter = digits.end() - 1; iter >= digits.begin(); iter--){
+    carryover = (*iter) * X + carryover;
+    temp = carryover % 10;
+    carryover /= 10;
+    product.insert(product.begin(), temp);
+  }
+
+  if(carryover > 0){
+    product.insert(product.begin(), carryover);
+  }
+
+  if(X < 0){
+    negative ? answer.negative = false : answer.negative = true;
+  }
+
+  else if(X > 0){
+    negative ? answer.negative = true : answer.negative = false;
+  }
+
+  answer.digits = product;
+
+  return answer;
+}
+
+Longnums Longnums::operator/(Longnums X)
+{
+  Longnums quotient, divisor, dividend;
+  dividend.digits = digits;
+  divisor.digits = X.digits;
+
+  if(dividend < divisor){
+    return quotient;      //quotient is initialized to 0 by default constructor
+  }
+
+  else if(dividend == divisor){
+    quotient.digits[0] = 1;     //the 0 gets converted to 1
+    return quotient;
+  }
+
+  else{
+    Longnums part_rem, temp_dividend;      //partial remainder, temporary dividend
+    int q;      //a digit of the quotient
+
+    temp_dividend.digits = std::vector<int>(dividend.digits.begin(), dividend.digits.begin() + divisor.digits.size());
+                                            //using the constructor for vector
+    quotient.digits.pop_back();
+
+    for(auto iter = dividend.digits.begin() + divisor.digits.size() - 1; iter < dividend.digits.end(); iter++){
+      for(int i = 1; i <= 10; i++){
+        if((divisor * i) > temp_dividend){
+          q = i - 1;
+          break;
+        }
+      }
+
+      quotient.digits.push_back(q);
+      part_rem = divisor * q;
+      part_rem = temp_dividend - part_rem;
+
+      if(part_rem.digits[0] == 0){
+        temp_dividend.digits.erase(temp_dividend.digits.begin(), temp_dividend.digits.end());
+      }
+
+      else{
+        temp_dividend.digits = part_rem.digits;
+      }
+
+      if(iter != dividend.digits.end() - 1){
+        temp_dividend.digits.push_back(*(iter + 1));
+      }
+
+    }
+
+    //remove the trailing zero if any
+    if(quotient.digits[0] == 0){
+      quotient.digits.erase(quotient.digits.begin());
+    }
+
+    return quotient;
+  }
+}
+
+Longnums Longnums::operator%(Longnums X)
+{
+  Longnums quotient;
+  Longnums remainder;
+
+  quotient = (*this) / X;
+
+  remainder = (X * quotient);
+
+  remainder = (*this) - remainder;
+
+  return remainder;
 }

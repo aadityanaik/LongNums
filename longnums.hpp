@@ -29,6 +29,9 @@ public:
   Longnums operator+(Longnums);
   Longnums operator-(Longnums);
   Longnums operator*(Longnums);
+  Longnums operator*(int);
+  Longnums operator/(Longnums);
+  Longnums operator%(Longnums);
 };
 
 #endif // LONGNUMS_H

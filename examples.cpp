@@ -35,5 +35,18 @@ int main()
     (x * y).put();
     std::cout << std::endl;
     std::cout << std::endl;
+
+    //division
+    std::cout << "Division" << std::endl;
+    (x / y).put();
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    //modulus
+    std::cout << "Modulus" << std::endl;
+    (x % y).put();
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
   }while(1);
 }
