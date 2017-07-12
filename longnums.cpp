@@ -412,27 +412,30 @@ Longnums Longnums::operator*(Longnums X)
     return answer;
   }
 
-  std::vector<Longnums> product(X.digits.size());
-  int carryover = 0;
+  Longnums product;
+  int carryover;
   int prod_temp = 0, count = 0;
 
   for(auto multiplier = X.digits.end() - 1; multiplier >= X.digits.begin(); multiplier--){
-    product[count].digits.pop_back();
+    product.digits.erase(product.digits.begin(), product.digits.end());
+    carryover = 0;
     for(int i = 0; i < count; i++){
-      product[count].digits.push_back(0);
+      product.digits.push_back(0);
     }
 
     for(auto multiplicand = digits.end() - 1; multiplicand >= digits.begin(); multiplicand--){
       prod_temp = ((*multiplicand) * (*multiplier)) + carryover;
       carryover = prod_temp / 10;
       prod_temp %= 10;
-      product[count].digits.insert(product[count].digits.begin(), prod_temp);
+      product.digits.insert(product.digits.begin(), prod_temp);
     }
-    count++;
-  }
+    if(carryover > 0){
+      product.digits.insert(product.digits.begin(), carryover);
+    }
 
-  for(auto iter = product.begin(); iter < product.end(); iter++){
-    answer = answer + (*iter);
+    answer = answer + product;
+
+    count++;
   }
 
   if(negative == X.negative){
