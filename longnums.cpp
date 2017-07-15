@@ -5,21 +5,47 @@
 #include "longnums.hpp"
 
 //default constructor
-Longnums::Longnums()
+Longnums::Longnums()                                                            //By default every object will be 0
 {
   digits.push_back(0);
   negative = false;
 }
 
-//to equate two Longnums
-Longnums::Longnums(Longnums &X)
+//destructor
+Longnums::~Longnums()
+{
+}
+
+//copy constructor
+Longnums::Longnums(Longnums &X)                                                 //equates 2 Longnums objects
 {
   digits = X.digits;
   negative = X.negative;
 }
 
-//finding the modulus of number
-Longnums Longnums::mod()
+//equate Longnums object to an int
+void Longnums::operator=(int X)
+{
+  digits.pop_back();                                                            //gets rid of the initial 0
+
+  if(X < 0){
+    negative = true;
+  }
+
+  X = abs(X);
+
+  while(X > 0){
+    digits.insert(digits.begin(), X % 10);                                      //inserts individual digits at the beginning of the 'digits' vector
+    X /= 10;
+  }
+
+  if(digits.empty()){                                                           //in case number is 0
+    digits.push_back(0);
+  }
+}
+
+//finding the absolute value of number
+Longnums Longnums::absolute()
 {
   Longnums ans;
   ans.digits = digits;
@@ -30,7 +56,7 @@ Longnums Longnums::mod()
 //input method
 int Longnums::get()
 {
-  digits.erase(digits.begin(), digits.end());
+  digits.erase(digits.begin(), digits.end());                                   //remove any initial value in 'digits'
   char c;
   //denotes each individual digit or the sign
 START:
@@ -45,7 +71,7 @@ START:
     negative = true;
   }
 
-  else if(int(c) >= 49 && int(c) <= 57){
+  else if(int(c) >= 49 && int(c) <= 57){                                        //if c is not a number aka can't be a digit
     //only numbers can be digits
     negative = false;
     digits.push_back(int(c) - 48);
@@ -56,7 +82,7 @@ START:
     negative = false;
   }
 
-  else if(c != '\n'){
+  else if(!isspace(c)){                                                         //if c is anything but a whitespace
     std::cerr << std::endl << "No such sign" << std::endl;
     return 1;
     //error
@@ -78,9 +104,8 @@ START:
       }
     }
 
-    else if(c == '\n' || c == '\t' || c == ' '){
-      break;
-      //return, tab or space terminates the input
+    else if(isspace(c)){
+      break;                                                                    //return, tab or space terminates the input
     }
 
     else{
@@ -177,6 +202,13 @@ bool Longnums::operator<(Longnums X)
   }
 }
 
+bool Longnums::operator<(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) < num2);
+}
+
 bool Longnums::operator>(Longnums X)
 {
   if(!negative){
@@ -240,6 +272,13 @@ bool Longnums::operator>(Longnums X)
   }
 }
 
+bool Longnums::operator>(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) > num2);
+}
+
 bool Longnums::operator==(Longnums X)
 {
   if(negative == X.negative){
@@ -251,7 +290,62 @@ bool Longnums::operator==(Longnums X)
   return false;
 }
 
-Longnums Longnums::operator+(Longnums X)
+bool Longnums::operator==(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) == num2);
+}
+
+bool Longnums::operator>=(Longnums X)
+{
+	if((*this) > X || (*this) == X){
+		return true;
+	}
+
+	return false;
+}
+
+bool Longnums::operator>=(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) >= num2);
+}
+
+bool Longnums::operator<=(Longnums X)
+{
+	if((*this) < X || (*this) == X){
+		return true;
+	}
+
+	return false;
+}
+
+bool Longnums::operator<=(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) <= num2);
+}
+
+bool Longnums::operator!=(Longnums X)
+{
+	if((*this) == X){
+		return false;
+	}
+
+	return true;
+}
+
+bool Longnums::operator!=(int X)
+{
+	Longnums num2;
+	num2 = X;
+	return ((*this) != num2);
+}
+
+Longnums Longnums::operator+(Longnums X)                                        //Addition
 {
   Longnums answer;
   std::vector<int> sum;
@@ -265,6 +359,7 @@ Longnums Longnums::operator+(Longnums X)
       //the ans will be negative
     }
 
+    //determining which number is big or small (only considering the length of digits)
     if(X > (*this)){
       if(negative){
         big = digits;
@@ -287,12 +382,12 @@ Longnums Longnums::operator+(Longnums X)
     }
 
     while(big.size() != small.size()){
-      small.insert(small.begin(), 0);
+      small.insert(small.begin(), 0);                                           //adds 0s to the start of 'small' so that length of digits is same
     }
 
     int temp = 0;
 
-    for(int i = big.size() - 1; i >= 0; i--){
+    for(int i = big.size() - 1; i >= 0; i--){                                   //following algorithm is the traditional digit-by-digit method of addition
       temp = ((big[i] + small[i] + carryover) % 10);
 
       carryover = (big[i] + small[i] + carryover) / 10;
@@ -300,29 +395,37 @@ Longnums Longnums::operator+(Longnums X)
       sum.insert(sum.begin(), temp);
     }
 
-    if(carryover > 0){
+    if(carryover > 0){                                                          //if the carryover is 1
       sum.insert(sum.begin(), carryover);
     }
     answer.digits = sum;
     answer.negative = ansneg;
-    return answer;
   }
 
   else{
     //one must subtract the numbers
-    Longnums answer, temp;
-    if(negative){
-      temp = this->mod();
+    Longnums temp;
+    if(negative){                                                               //for cases like -1 + 2 == 2 + (-1) == 2 - 1
+      temp = this->absolute();
       answer = (X - temp);
-      return answer;
     }
 
-    else if(X.negative){
-      temp = X.mod();
+    else if(X.negative){                                                        //for cases like 1 + (-2) == 1 - 2
+      temp = X.absolute();
       answer = ((*this) - temp);
-      return answer;
     }
   }
+
+  return answer;
+}
+
+Longnums Longnums::operator+(int X)                                             //adding to an integer
+{
+	Longnums NUM2, Ans;
+	NUM2 = X;
+
+	Ans = (*this) + NUM2;
+	return Ans;
 }
 
 Longnums Longnums::operator-(Longnums X)
@@ -333,13 +436,13 @@ Longnums Longnums::operator-(Longnums X)
     int maxlength = std::max(digits.size(), X.digits.size());
     std::vector<int> big, small;
 
-    if(X == (*this)){
+    if(X == (*this)){                                                           //answer is 0
       return result;
     }
 
     else if(X > (*this)){
       result.negative = true;
-      if(negative){
+      if(negative){                                                             //big or small numbers by considering the length of digits
         big = this->digits;
         small = X.digits;
       }
@@ -361,16 +464,16 @@ Longnums Longnums::operator-(Longnums X)
       }
     }
 
-    std::vector<int> res;
+    std::vector<int> res;                                                       //resultant vector of digits
 
-    while(big.size() != small.size()){
+    while(big.size() != small.size()){                                          //equate length of digits by adding 0s to the start of smaller size number
       small.insert(small.begin(), 0);
     }
 
     //big - small
     result.digits.pop_back();
     int ans;
-    for(int i = maxlength - 1; i >= 0; i--){
+    for(int i = maxlength - 1; i >= 0; i--){                                    //traditional method of subtraction digit by digit from units place
       ans = big[i] - small[i];
       if(ans < 0){
         ans += 10;
@@ -404,12 +507,21 @@ Longnums Longnums::operator-(Longnums X)
   }
 }
 
+Longnums Longnums::operator-(int X)                                             //subtracting with an integer
+{
+	Longnums NUM2, Ans;
+	NUM2 = X;
+
+	Ans = (*this) - NUM2;
+	return Ans;
+}
+
 Longnums Longnums::operator*(Longnums X)
 {
   Longnums answer;
 
   if(X.digits[0] == 0){
-    return answer;
+    return answer;                                                              //answer is 0
   }
 
   Longnums product;
@@ -417,10 +529,10 @@ Longnums Longnums::operator*(Longnums X)
   int prod_temp = 0, count = 0;
 
   for(auto multiplier = X.digits.end() - 1; multiplier >= X.digits.begin(); multiplier--){
-    product.digits.erase(product.digits.begin(), product.digits.end());
+    product.digits.erase(product.digits.begin(), product.digits.end());         //algorithm is traditional long multiplication algorithm
     carryover = 0;
     for(int i = 0; i < count; i++){
-      product.digits.push_back(0);
+      product.digits.push_back(0);                                              //number of zeros the temporaryproduct should have at the end
     }
 
     for(auto multiplicand = digits.end() - 1; multiplicand >= digits.begin(); multiplicand--){
@@ -450,34 +562,10 @@ Longnums Longnums::operator*(Longnums X)
 
 Longnums Longnums::operator*(int X)
 {
-  int carryover = 0, temp = 0;
-  std::vector<int> product;
-  Longnums answer;
+  Longnums NUM2, answer;
+  NUM2 = X;
 
-  if(X == 0){
-    return answer;
-  }
-
-  for(auto iter = digits.end() - 1; iter >= digits.begin(); iter--){
-    carryover = (*iter) * X + carryover;
-    temp = carryover % 10;
-    carryover /= 10;
-    product.insert(product.begin(), temp);
-  }
-
-  if(carryover > 0){
-    product.insert(product.begin(), carryover);
-  }
-
-  if(X < 0){
-    negative ? answer.negative = false : answer.negative = true;
-  }
-
-  else if(X > 0){
-    negative ? answer.negative = true : answer.negative = false;
-  }
-
-  answer.digits = product;
+  answer = (*this) * NUM2;
 
   return answer;
 }
@@ -489,24 +577,29 @@ Longnums Longnums::operator/(Longnums X)
   divisor.digits = X.digits;
 
   if(dividend < divisor){
-    return quotient;      //quotient is initialized to 0 by default constructor
+    return quotient;                                                            //quotient is initialized to 0 by default constructor
   }
 
   else if(dividend == divisor){
-    quotient.digits[0] = 1;     //the 0 gets converted to 1
+    quotient.digits[0] = 1;                                                     //the 0 gets converted to 1
     return quotient;
   }
 
+  else if(divisor == 0){																									//check iif divisor is 0, since quotient as of now is 0 as well
+  	std::cerr << "Cannot divide by 0" << std::endl;
+  	return quotient;
+  }
+
   else{
-    Longnums part_rem, temp_dividend;      //partial remainder, temporary dividend
-    int q;      //a digit of the quotient
+    Longnums part_rem, temp_dividend;                                           //partial remainder, temporary dividend
+    int q;                                                                      //a digit of the quotient
 
     temp_dividend.digits = std::vector<int>(dividend.digits.begin(), dividend.digits.begin() + divisor.digits.size());
-                                            //using the constructor for vector
+                                                                                //using the constructor for vector
     quotient.digits.pop_back();
 
     for(auto iter = dividend.digits.begin() + divisor.digits.size() - 1; iter < dividend.digits.end(); iter++){
-      for(int i = 1; i <= 10; i++){
+      for(int i = 1; i <= 10; i++){                                             //the following algorithm is the same as the long division algorithm
         if((divisor * i) > temp_dividend){
           q = i - 1;
           break;
@@ -536,8 +629,24 @@ Longnums Longnums::operator/(Longnums X)
       quotient.digits.erase(quotient.digits.begin());
     }
 
+    if(negative != X.negative){
+    	quotient.negative = true;
+    }
+
+    else{
+    	quotient.negative = false;
+    }
+
     return quotient;
   }
+}
+
+Longnums Longnums::operator/(int X)
+{
+	Longnums NUM2, Ans;
+	NUM2 = X;
+	Ans = (*this) / NUM2;
+	return Ans;
 }
 
 Longnums Longnums::operator%(Longnums X)
@@ -552,4 +661,12 @@ Longnums Longnums::operator%(Longnums X)
   remainder = (*this) - remainder;
 
   return remainder;
+}
+
+Longnums Longnums::operator%(int X)
+{
+	Longnums NUM2, Ans;
+	NUM2 = X;
+	Ans = (*this) % NUM2;
+	return Ans;
 }
