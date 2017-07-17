@@ -8,7 +8,11 @@ class Longnums {
   bool negative;
 
 public:
+  //constructor
   Longnums();
+
+  //destructor
+  ~Longnums();
 
   //input-output functions
   int get();
@@ -16,22 +20,36 @@ public:
 
   //comparing numbers
   bool operator<(Longnums);
+  bool operator<(int);
   bool operator>(Longnums);
+  bool operator>(int);
   bool operator==(Longnums);
+  bool operator==(int);
+  bool operator<=(Longnums);
+  bool operator<=(int);
+  bool operator>=(Longnums);
+  bool operator>=(int);
+  bool operator!=(Longnums);
+  bool operator!=(int);
 
-  //Equality function
+  //Equality functions
   Longnums(Longnums&);
+  void operator=(int);
 
-  //modulus
-  Longnums mod();
+  //absolute value
+  Longnums absolute();
 
   //primary operations- adding, subtracting, multiplying and dividing
   Longnums operator+(Longnums);
+  Longnums operator+(int);
   Longnums operator-(Longnums);
+  Longnums operator-(int);
   Longnums operator*(Longnums);
   Longnums operator*(int);
   Longnums operator/(Longnums);
+  Longnums operator/(int);
   Longnums operator%(Longnums);
+  Longnums operator%(int);
 };
 
 #endif // LONGNUMS_H
