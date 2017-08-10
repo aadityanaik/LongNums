@@ -18,6 +18,12 @@ public:
   int get();
   int put();
 
+  //overloading input and output operators
+  friend std::ostream &operator<<(std::ostream& output, Longnums& X);
+
+  friend std::istream& operator>>(std::istream& input, Longnums& X);
+
+
   //comparing numbers
   bool operator<(Longnums);
   bool operator<(int);

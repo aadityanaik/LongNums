@@ -8,15 +8,17 @@ int main()
   int z;
 
   //input
+  /*
   x.get();
   y.get();
+  */
+  std::cin >> x;
+  std::cin >> y;
   std::cin >> z;
 
   //output
-  x.put();
-  std::cout << std::endl;
-  y.put();
-  std::cout << std::endl;
+  std::cout << x << std::endl;
+  std::cout << y << std::endl;
   std::cout << z << std::endl;
 
   //addition
