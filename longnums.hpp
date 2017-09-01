@@ -2,6 +2,7 @@
 #define LONGNUMS_H
 
 #include <vector>
+#include <cstdint>
 
 class Longnums {
   std::vector<int> digits;
@@ -19,7 +20,7 @@ public:
   int put();
 
   //overloading input and output operators
-  friend std::ostream &operator<<(std::ostream& output, Longnums& X);
+  friend std::ostream& operator<<(std::ostream& output, const Longnums& X);
 
   friend std::istream& operator>>(std::istream& input, Longnums& X);
 
@@ -40,7 +41,10 @@ public:
 
   //Equality functions
   Longnums(Longnums&);
-  void operator=(int);
+  void operator=(long int);
+
+  //converting to int
+  int toInt();
 
   //absolute value
   Longnums absolute();
@@ -51,7 +55,7 @@ public:
   Longnums operator-(Longnums);
   Longnums operator-(int);
   Longnums operator*(Longnums);
-  Longnums operator*(int);
+  Longnums operator*(long int);
   Longnums operator/(Longnums);
   Longnums operator/(int);
   Longnums operator%(Longnums);

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <algorithm>
-#include <cmath>
+#include <climits>
+#include <math.h>
 
 #include "longnums.hpp"
 
 //default constructor
-Longnums::Longnums()                         //By default every object will be 0
-{
+Longnums::Longnums() {                       //By default every object will be 0
   digits.push_back(0);
   negative = false;
 }
@@ -16,22 +16,22 @@ Longnums::~Longnums() {
 }
 
 //copy constructor
-Longnums::Longnums(Longnums &X)                     //equates 2 Longnums objects
-    {
+Longnums::Longnums(Longnums &X) {
   digits = X.digits;
+  while((*digits.begin()) == 0 && digits.size() > 1) {
+    digits.erase(digits.begin());
+  }
   negative = X.negative;
 }
 
 //equate Longnums object to an int
-void Longnums::operator=(int X) {
-  digits.pop_back();                                 //gets rid of the initial 0
+void Longnums::operator=(long int X) {
+  digits.erase(digits.begin(), digits.end());                                 //gets rid of the initial 0
 
   if (X < 0) {
     negative = true;
   }
-
   X = abs(X);
-
   while (X > 0) {
     digits.insert(digits.begin(), X % 10);  //inserts individual digits at the beginning of the 'digits' vector
     X /= 10;
@@ -42,11 +42,25 @@ void Longnums::operator=(int X) {
   }
 }
 
+//converting to type int
+int Longnums::toInt() {
+  int sum = 0, pow = 1;
+
+  for(auto digit = digits.end() - 1; digit >= digits.begin(); digit--) {
+    sum += ((*digit)) * pow;
+    pow *= 10;
+  }
+
+  return sum;
+}
+
 //finding the absolute value of number
 Longnums Longnums::absolute() {
   Longnums ans;
+
   ans.digits = digits;
   ans.negative = false;
+
   return ans;
 }
 
@@ -54,6 +68,7 @@ Longnums Longnums::absolute() {
 std::istream& operator>>(std::istream& input, Longnums& X) {
   X.digits.erase(X.digits.begin(), X.digits.end());
   char c;
+
   input.get(c);
   //first character distinguishing
   if (c == '+') {
@@ -72,8 +87,7 @@ std::istream& operator>>(std::istream& input, Longnums& X) {
       if (!X.digits.empty()) {
         break;
       }
-    }
-    if (c == '0') {
+    } else if (c == '0') {
       //there shouldn't be trailing zeroes
       if (!X.digits.empty()) {
         X.digits.push_back((int) c - 48);
@@ -86,17 +100,20 @@ std::istream& operator>>(std::istream& input, Longnums& X) {
       exit(1);
     }
   }
+
   return input;
 }
 
 //overloading the output
-std::ostream &operator<<(std::ostream& output, Longnums& X) {
+std::ostream& operator<<(std::ostream& output, const Longnums& X) {
   if (X.negative) {
     output << "-";
   }
+
   for (int digit : X.digits) {
     output << digit;
   }
+
   return output;
 }
 
@@ -177,7 +194,7 @@ int Longnums::put() {
   }
 
   for (auto digit : digits) {
-    std::cout << digit;
+    std::cout << (int)digit;
   }
 
   return 0;
@@ -546,14 +563,128 @@ Longnums Longnums::operator-(int X)                //subtracting with an integer
 Longnums Longnums::operator*(Longnums X) {
   Longnums answer;
 
-  if (X == 0 || (*this) == 0) {
-    return answer;                                                 //answer is 0
+  if((*this) == 0 || X == 0) {
+    return answer;
   }
 
-  Longnums product;
-  int carryover;
-  int prod_temp = 0, count = 0;
+  //for negative numbers
+  answer.negative = negative ^ X.negative;
 
+  if((*this) < INT_MAX && X < INT_MAX) {
+    long int product;
+    long int _this = toInt();
+    long int _x = X.toInt();
+    product = _this * _x;
+    //std::cout << _this << " times " << _x << " gives product " << product << std::endl;
+
+    answer = product;
+    //std::cout << "with answer as " << answer << std::endl;
+  } else if((*this) < INT_MAX){
+    long int multiplier = this->toInt();
+    answer = X * multiplier;
+  } else if(X < INT_MAX) {
+    long int multiplier = X.toInt();
+    answer = (*this) * multiplier;
+  } else {
+    //determine the value of the position to split the numbers
+    //(*this) will be split into x1, x2 and X will be split into y1 and y2
+    //z2 = x1y1, z0 = x2y2 and z1 = x1y2 + x2y1 = (x1 + x2) (y1 + y2) - z2 - z0
+    //to be returned: z2 * b^2 + z1 * b + z0 where b is 10 ^ midpos
+
+    //determining midpos
+    int midpos, numZero;
+    if((*this) >= X) {
+      midpos = this->digits.size() / 2;
+      numZero = this->digits.size() - midpos;
+    } else {
+      midpos = X.digits.size() / 2;
+      numZero = X.digits.size() - midpos;
+    }
+
+    //std::cout << midpos << " " << numZero << std::endl;
+
+    //declaring x1, x2, y1, y2 using vector constructor
+    Longnums x1, x2, y1, y2, z0, z1, z2;
+    if(this->digits.size() <= numZero) {
+      x1 = 0;
+      x2.digits = this->digits;
+    } else {
+      x1.digits = std::vector<int>(this->digits.begin(), this->digits.end() - numZero);
+      x2.digits = std::vector<int>(this->digits.end() - numZero, this->digits.end());
+    }
+
+    if(X.digits.size() <= numZero) {
+      y1 = 0;
+      y2.digits = X.digits;
+    } else {
+      y1.digits = std::vector<int>(X.digits.begin(), X.digits.end() - numZero);
+      y2.digits = std::vector<int>(X.digits.end() - numZero, X.digits.end());
+    }
+
+    //removing trailing zeroes from x2 and y2
+    while((*x2.digits.begin()) == 0 && x2.digits.size() > 1) {
+      x2.digits.erase(x2.digits.begin());
+    }
+
+    while((*y2.digits.begin()) == 0 && y2.digits.size() > 1) {
+      y2.digits.erase(y2.digits.begin());
+    }
+
+
+    //std::cout << *this << " as X splits into " << x1 << " and " << x2 << std::endl;
+    //std::cout << X << " as Y splits into " << y1 << " and " << y2 << std::endl;
+
+
+    //to find z2
+    z2 = x1 * y1;
+    //std::cout << "z2 for " << x1 << " and " << y1 << " calculated" << std::endl;
+
+    //to find z0
+    //std::cout << "z1 is " << x2 << " times " << y2 << std::endl;
+    z0 = x2 * y2;
+    //std::cout << "z0 for " << x2 << " and " << y2 << " calculated" << std::endl;
+    //to find z1
+    {
+      Longnums sumX, sumY, prodSums;
+      sumX = x1 + x2;
+      sumY = y1 + y2;
+      prodSums = sumX * sumY;
+
+      z1 = prodSums - z2 - z0;
+      //std::cout << "product of sums is " << prodSums << std::endl;
+      //std::cout << "No issues for z1" << std::endl;
+    }
+
+    //get the answer
+    //first append twice the number of zeros of numZeros to z2 and numZeros to z1
+    for(int i = 1; i <= 2 * numZero; i++) {
+      if(z2 != 0) {
+        z2.digits.push_back(0);
+      }
+
+      if(i <= numZero && z1 != 0) {
+        z1.digits.push_back(0);
+      }
+    }
+
+    //std::cout << (*this) << " times " << X << std::endl;
+
+    //std::cout << "Zeroes appended" << std::endl;
+    //std::cout << "answer will be " << z2 << " + " << z1 << " + " << z0 << std::endl;
+
+    //answer  = z2 + z11 + z0
+    answer = z2 + z1 + z0;
+
+    //std::cout << "x1 is " << x1 << " and x2 is " << x2 << std::endl
+    //          << "y1 is " << y1 << " and y2 is " << y2 << std::endl
+    //          << "z1 is " << z1 << "\nz2 is " << z2 << "\nz0 is " << z0 << std::endl;
+  }
+
+
+
+  /*
+  Longnums product;
+  int carryover, count = 0, prod_temp;
   for (auto multiplier = X.digits.end() - 1; multiplier >= X.digits.begin();
       multiplier--) {
     product.digits.erase(product.digits.begin(), product.digits.end());  //algorithm is traditional long multiplication algorithm
@@ -577,21 +708,26 @@ Longnums Longnums::operator*(Longnums X) {
 
     count++;
   }
-
-  if (negative == X.negative) {
-    answer.negative = false;
-  } else {
-    answer.negative = true;
-  }
+  */
 
   return answer;
 }
 
-Longnums Longnums::operator*(int X) {
-  Longnums NUM2, answer;
-  NUM2 = X;
+Longnums Longnums::operator*(long int X) {
+  Longnums answer;
+  long int product = 0, carry = 0;
+  answer.digits.erase(answer.digits.begin(), answer.digits.end());
 
-  answer = (*this) * NUM2;
+  for(int i = (this->digits).size() - 1; i >= 0; i--) {
+    product = X * (this->digits)[i] + carry;
+    carry = product / 10;
+    product = product % 10;
+    answer.digits.insert(answer.digits.begin(), product);
+  }
+  while (carry > 0) {
+    answer.digits.insert(answer.digits.begin(), carry % 10);
+    carry /= 10;
+  }
 
   return answer;
 }
@@ -626,9 +762,7 @@ Longnums Longnums::operator/(Longnums X) {
     Longnums part_rem, temp_dividend;    //partial remainder, temporary dividend
     int q;                                             //a digit of the quotient
 
-    temp_dividend.digits = std::vector<int>(
-        dividend.digits.begin(),
-        dividend.digits.begin() + divisor.digits.size());
+    temp_dividend.digits = std::vector<int>(dividend.digits.begin(), dividend.digits.begin() + divisor.digits.size());
     //using the constructor for vector
     quotient.digits.pop_back();
 
