@@ -2,7 +2,6 @@
 #define LONGNUMS_H
 
 #include <vector>
-#include <cstdint>
 
 class Longnums {
   std::vector<int> digits;
@@ -15,10 +14,6 @@ public:
   //destructor
   ~Longnums();
 
-  //input-output functions
-  int get();
-  int put();
-
   //overloading input and output operators
   friend std::ostream& operator<<(std::ostream& output, const Longnums& X);
 
@@ -26,22 +21,23 @@ public:
 
 
   //comparing numbers
-  bool operator<(Longnums);
-  bool operator<(int);
-  bool operator>(Longnums);
-  bool operator>(int);
-  bool operator==(Longnums);
-  bool operator==(int);
-  bool operator<=(Longnums);
-  bool operator<=(int);
-  bool operator>=(Longnums);
-  bool operator>=(int);
-  bool operator!=(Longnums);
-  bool operator!=(int);
+  bool operator<(const Longnums&);
+  bool operator<(const int&);
+  bool operator>(const Longnums&);
+  bool operator>(const int&);
+  bool operator==(const Longnums&);
+  bool operator==(const int&);
+  bool operator<=(const Longnums&);
+  bool operator<=(const int&);
+  bool operator>=(const Longnums&);
+  bool operator>=(const int&);
+  bool operator!=(const Longnums&);
+  bool operator!=(const int&);
 
   //Equality functions
-  Longnums(Longnums&);
-  void operator=(long int);
+  Longnums(const Longnums&);
+  void operator=(const long int&);
+	void operator=(const std::string&);
 
   //converting to int
   int toInt();

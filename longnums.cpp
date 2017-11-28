@@ -2,8 +2,15 @@
 #include <algorithm>
 #include <climits>
 #include <math.h>
+#include <exception>
 
 #include "longnums.hpp"
+
+/*  The following few functions are constructors, including
+ *  a default constructor and a copy constructor
+ *
+ *  The destructor remains empty for now
+ */
 
 //default constructor
 Longnums::Longnums() {                       //By default every object will be 0
@@ -16,27 +23,39 @@ Longnums::~Longnums() {
 }
 
 //copy constructor
-Longnums::Longnums(Longnums &X) {
+Longnums::Longnums(const Longnums& X) {
+  //equating the two vectors
   digits = X.digits;
-  while((*digits.begin()) == 0 && digits.size() > 1) {
-    digits.erase(digits.begin());
-  }
+
+  //equating the booleans
   negative = X.negative;
 }
 
-//equate Longnums object to an int
-void Longnums::operator=(long int X) {
-  digits.erase(digits.begin(), digits.end());                                 //gets rid of the initial 0
+/******************************************************************************/
 
+/*  The next two functions involve the conversions of types from Longnums to int
+ *  and from int (or long int) to Longnums, as well as string to Longnums
+ */
+
+//equate Longnums object to an int
+void Longnums::operator=(const long int& X) {
+	//gets rid of the initial 0
+  digits.erase(digits.begin(), digits.end());
+  //determine if negative
   if (X < 0) {
     negative = true;
   }
-  X = abs(X);
-  while (X > 0) {
-    digits.insert(digits.begin(), X % 10);  //inserts individual digits at the beginning of the 'digits' vector
-    X /= 10;
+
+  //find absolute value of X to extract digits one by one
+  long int rVal = std::abs(X);
+
+  //getting individual digits
+  while (rVal > 0) {
+    digits.insert(digits.begin(), rVal % 10);  //inserts individual digits at the beginning of the 'digits' vector
+    rVal /= 10;
   }
 
+  //if vector is empty by any chance
   if (digits.empty()) {                                    //in case number is 0
     digits.push_back(0);
   }
@@ -46,7 +65,7 @@ void Longnums::operator=(long int X) {
 int Longnums::toInt() {
   int sum = 0, pow = 1;
 
-  for(auto digit = digits.end() - 1; digit >= digits.begin(); digit--) {
+  for(std::vector<int>::iterator digit = digits.end() - 1; digit >= digits.begin(); digit--) {
     sum += ((*digit)) * pow;
     pow *= 10;
   }
@@ -54,7 +73,43 @@ int Longnums::toInt() {
   return sum;
 }
 
-//finding the absolute value of number
+void Longnums::operator=(const std::string& num) {
+	digits.erase(digits.begin(), digits.end());
+
+	if(num[0] == '-') {
+		negative = true;
+	} else if(num[0] == '+') {
+		negative = false;
+	} else if ((int)num[0] > 48 && (int)num[0] < 59) {
+		negative = false;
+		digits.push_back((int)num[0] - 48);
+	} else {
+		return;
+	}
+
+	for(int i = 1; i < num.length(); i++) {
+		if((int)num[0] > 48 && (int)num[0] < 59) {
+			digits.push_back((int)num[i] - 48);
+		} else if(num[0] == '0') {
+			if(!digits.empty()) {
+				digits.push_back(0);
+			}
+		} else {
+			negative = false;
+			digits = std::vector<int>(1, 0);
+			return;
+		}
+	}
+
+	if(digits.size() == 0) {
+		negative = false;
+		digits.push_back(0);
+	}
+}
+
+/******************************************************************************/
+
+//finding the absolute value of number- just the digits without the sign
 Longnums Longnums::absolute() {
   Longnums ans;
 
@@ -64,42 +119,54 @@ Longnums Longnums::absolute() {
   return ans;
 }
 
+/******************************************************************************/
+
+/*  The next two functions overload the extraction and insertion operators (>>
+ *  and <<) so that one can use std::cin and std::cout to take input and display
+ *  output
+ */
+
 //overloading input extraction operator
 std::istream& operator>>(std::istream& input, Longnums& X) {
   X.digits.erase(X.digits.begin(), X.digits.end());
   char c;
 
-  input.get(c);
-  //first character distinguishing
-  if (c == '+') {
-    X.negative = false;
-  } else if (c == '-') {
-    X.negative = true;
-  } else if ((int) c > 48 && (int) c <= 57) {
-    X.digits.push_back((int) c - 48);
-  }
+	//getting the first character
+	do {
+  	input.get(c);
+  	if (c == '+') {
+    	X.negative = false;
+  	} else if (c == '-') {
+	    X.negative = true;
+	  } else if ((int) c > 48 && (int) c <= 57) {
+    	X.digits.push_back((int) c - 48);
+  	}
+	} while(isspace(c));	//can't have first character being a space... it simply won't do
 
-  //now to the rest of the digits
+  //now for the rest of the digits
   while (true) {
     input.get(c);
     if (isspace(c)) {
-      //a space after the first input
-      if (!X.digits.empty()) {
-        break;
-      }
-    } else if (c == '0') {
-      //there shouldn't be trailing zeroes
-      if (!X.digits.empty()) {
-        X.digits.push_back((int) c - 48);
-      }
+			break;
     } else if ((int) c > 48 && (int) c <= 57) {
       //a digit between 1 to 9
       X.digits.push_back((int) c - 48);
-    } else {
+    } else if(c == '0') {
+			if(!X.digits.empty()) {
+				X.digits.push_back(0);
+			}
+		} else {
       //anything else... exit
-      exit(1);
+			X.negative = false;
+			X.digits = std::vector<int>(1, 0);
+			return input;
     }
   }
+
+	if(X.digits.empty()) {
+		X.negative = false;
+		X.digits.push_back(0);
+	}
 
   return input;
 }
@@ -117,91 +184,16 @@ std::ostream& operator<<(std::ostream& output, const Longnums& X) {
   return output;
 }
 
-//input method
-int Longnums::get() {
-  digits.erase(digits.begin(), digits.end());  //remove any initial value in 'digits'
-  char c;
-  //denotes each individual digit or the sign
-  START:
+/******************************************************************************/
 
-  std::cin.get(c);
-
-  if (c == '+') {
-    negative = false;
-  }
-
-  else if (c == '-') {
-    negative = true;
-  }
-
-  else if (int(c) >= 49 && int(c) <= 57) {  //if c is not a number aka can't be a digit
-  //only numbers can be digits
-    negative = false;
-    digits.push_back(int(c) - 48);
-  }
-
-  else if (c == '0') {
-    //no leading zeros
-    negative = false;
-  }
-
-  else if (!isspace(c)) {                    //if c is anything but a whitespace
-    std::cerr << std::endl << "No such sign" << std::endl;
-    return 1;
-    //error
-  }
-
-  else {
-    goto START;
-  }
-
-  while (true) {
-    std::cin.get(c);
-    if (int(c) >= 49 && int(c) <= 57) {
-      digits.push_back(int(c) - 48);
-    }
-
-    else if (c == '0') {
-      if (!digits.empty()) {
-        digits.push_back(int(c) - 48);
-      }
-    }
-
-    else if (isspace(c)) {
-      break;                         //return, tab or space terminates the input
-    }
-
-    else {
-      //error
-      std::cerr << std::endl << "Not a valid integer" << std::endl;
-      digits.clear();
-      digits.push_back(0);
-      return 1;
-    }
-  }
-
-  if (digits.empty()) {
-    digits.push_back(0);
-  }
-
-  return 0;
-}
-
-//output function
-int Longnums::put() {
-  if (negative) {
-    std::cout << "-";
-  }
-
-  for (auto digit : digits) {
-    std::cout << (int)digit;
-  }
-
-  return 0;
-}
+/*  The following functions in the section below simply compare two Longnum
+ *  objects or a Longnum object and an int.
+ *
+ *  Operators were ovverloaded for this effect.
+ */
 
 //comparison functions
-bool Longnums::operator<(Longnums X) {
+bool Longnums::operator<(const Longnums& X) {
   if (!negative) {
     if (X.negative) {
       return false;
@@ -210,23 +202,17 @@ bool Longnums::operator<(Longnums X) {
     else {
       if (digits.size() > X.digits.size()) {
         return false;
-      }
-
-      else if (digits.size() == X.digits.size()) {
+      } else if (digits.size() == X.digits.size()) {
         for (int i = 0; i < digits.size(); i++) {
-          if (digits[i] > X.digits[i]) {
+          if (digits[i] >= X.digits[i]) {
             return false;
-          }
-
-          else if (digits[i] < X.digits[i]) {
+          } else {
             return true;
           }
         }
 
         return false;
-      }
-
-      else {
+      } else {
         return true;
       }
     }
@@ -240,36 +226,30 @@ bool Longnums::operator<(Longnums X) {
     else {
       if (digits.size() > X.digits.size()) {
         return true;
-      }
-
-      else if (digits.size() == X.digits.size()) {
+      } else if (digits.size() == X.digits.size()) {
         for (int i = 0; i < digits.size(); i++) {
           if (digits[i] > X.digits[i]) {
             return true;
-          }
-
-          else if (digits[i] < X.digits[i]) {
+          } else if (digits[i] < X.digits[i]) {
             return false;
           }
         }
 
         return false;
-      }
-
-      else {
+      } else {
         return false;
       }
     }
   }
 }
 
-bool Longnums::operator<(int X) {
+bool Longnums::operator<(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) < num2);
 }
 
-bool Longnums::operator>(Longnums X) {
+bool Longnums::operator>(const Longnums& X) {
   if (!negative) {
     if (X.negative) {
       return true;
@@ -331,13 +311,13 @@ bool Longnums::operator>(Longnums X) {
   }
 }
 
-bool Longnums::operator>(int X) {
+bool Longnums::operator>(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) > num2);
 }
 
-bool Longnums::operator==(Longnums X) {
+bool Longnums::operator==(const Longnums& X) {
   if (negative == X.negative) {
     if (digits == X.digits) {
       return true;
@@ -347,13 +327,13 @@ bool Longnums::operator==(Longnums X) {
   return false;
 }
 
-bool Longnums::operator==(int X) {
+bool Longnums::operator==(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) == num2);
 }
 
-bool Longnums::operator>=(Longnums X) {
+bool Longnums::operator>=(const Longnums& X) {
   if ((*this) > X || (*this) == X) {
     return true;
   }
@@ -361,13 +341,13 @@ bool Longnums::operator>=(Longnums X) {
   return false;
 }
 
-bool Longnums::operator>=(int X) {
+bool Longnums::operator>=(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) >= num2);
 }
 
-bool Longnums::operator<=(Longnums X) {
+bool Longnums::operator<=(const Longnums& X) {
   if ((*this) < X || (*this) == X) {
     return true;
   }
@@ -375,13 +355,13 @@ bool Longnums::operator<=(Longnums X) {
   return false;
 }
 
-bool Longnums::operator<=(int X) {
+bool Longnums::operator<=(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) <= num2);
 }
 
-bool Longnums::operator!=(Longnums X) {
+bool Longnums::operator!=(const Longnums& X) {
   if ((*this) == X) {
     return false;
   }
@@ -389,19 +369,27 @@ bool Longnums::operator!=(Longnums X) {
   return true;
 }
 
-bool Longnums::operator!=(int X) {
+bool Longnums::operator!=(const int& X) {
   Longnums num2;
   num2 = X;
   return ((*this) != num2);
 }
 
-Longnums Longnums::operator+(Longnums X)                              //Addition
-    {
+/******************************************************************************/
+
+/*  The following set of functions involve the method for the Longnums object to
+ *  deal with various mathematical operations like addition, subtraction,
+ *  multiplication and division
+ *  These may be converted into templates, along with the other comparison
+ *  functions
+ */
+
+Longnums Longnums::operator+(Longnums X) {                             //Addition
   Longnums answer;
   std::vector<int> sum;
   bool ansneg = false;
   int carryover = 0;
-  std::vector<int> big, small;
+  //std::vector<int> big, small;
   if (this->negative == X.negative) {
     //one must add
     if (this->negative) {
@@ -409,35 +397,22 @@ Longnums Longnums::operator+(Longnums X)                              //Addition
       //the ans will be negative
     }
 
-    //determining which number is big or small (only considering the length of digits)
-    if (X > (*this)) {
-      if (negative) {
-        big = digits;
-        small = X.digits;
-      } else {
-        big = X.digits;
-        small = digits;
-      }
-    } else {
-      if (!negative) {
-        big = digits;
-        small = X.digits;
-      } else {
-        big = X.digits;
-        small = digits;
-      }
-    }
-
-    while (big.size() != small.size()) {
-      small.insert(small.begin(), 0);  //adds 0s to the start of 'small' so that length of digits is same
-    }
-
     int temp = 0;
 
-    for (int i = big.size() - 1; i >= 0; i--) {  //following algorithm is the traditional digit-by-digit method of addition
-      temp = ((big[i] + small[i] + carryover) % 10);
+    for (int i = digits.size() - 1, j = X.digits.size() - 1;; i--, j--) {  //following algorithm is the traditional digit-by-digit method of addition
+			temp = carryover;
+			if(i >= 0 && j >= 0) {
+				temp += digits[i] + X.digits[j];
+			} else if(i >= 0) {
+				temp += digits[i];
+			} else if(j >= 0) {
+				temp += X.digits[j];
+			} else {
+				break;
+			}
 
-      carryover = (big[i] + small[i] + carryover) / 10;
+			carryover = temp / 10;
+			temp %= 10;
 
       sum.insert(sum.begin(), temp);
     }
@@ -466,8 +441,7 @@ Longnums Longnums::operator+(Longnums X)                              //Addition
   return answer;
 }
 
-Longnums Longnums::operator+(int X)                       //adding to an integer
-    {
+Longnums Longnums::operator+(int X) {                     //adding to an integer
   Longnums NUM2, Ans;
   NUM2 = X;
 
@@ -476,8 +450,50 @@ Longnums Longnums::operator+(int X)                       //adding to an integer
 }
 
 Longnums Longnums::operator-(Longnums X) {
-  if (negative == X.negative) {
-    //subtract
+	if(negative ==  X.negative) {
+		Longnums answer;
+		if((*this) >= X) {
+			int temp;
+			bool borrow = false;
+			answer.digits.erase(answer.digits.begin(), answer.digits.end());
+			for(int i = digits.size()-1, j = X.digits.size() - 1;i >= 0;i--, j--) {
+				temp = digits[i];
+				if(borrow) {
+					temp--;
+				}
+				if(j >= 0) {
+					temp -= X.digits[j];
+				}
+				if(temp < 0) {
+					temp += 10;
+					borrow = true;
+				} else {
+					borrow = false;
+				}
+				answer.digits.insert(answer.digits.begin(), temp);
+			}
+			
+			while((*answer.digits.begin()) == 0 && answer.digits.size() > 1) {
+				answer.digits.erase(answer.digits.begin());
+			}
+		} else {
+			answer = X - (*this);
+			answer.negative=true;
+		}
+
+		return answer;
+	} else {
+    //add
+    Longnums number, answer;
+    number.digits = X.digits;
+    number.negative = !X.negative;
+
+    answer = (*this) + number;
+    return answer;
+  }
+
+  /*if (negative == X.negative) {
+		//subtract
     Longnums result;
     int maxlength = std::max(digits.size(), X.digits.size());
     std::vector<int> big, small;
@@ -548,7 +564,7 @@ Longnums Longnums::operator-(Longnums X) {
 
     answer = (*this) + number;
     return answer;
-  }
+  }*/
 }
 
 Longnums Longnums::operator-(int X)                //subtracting with an integer
@@ -561,6 +577,7 @@ Longnums Longnums::operator-(int X)                //subtracting with an integer
 }
 
 Longnums Longnums::operator*(Longnums X) {
+	//std::cout << (*this) << " " << X << " ";
   Longnums answer;
 
   if((*this) == 0 || X == 0) {
@@ -601,8 +618,6 @@ Longnums Longnums::operator*(Longnums X) {
       numZero = X.digits.size() - midpos;
     }
 
-    //std::cout << midpos << " " << numZero << std::endl;
-
     //declaring x1, x2, y1, y2 using vector constructor
     Longnums x1, x2, y1, y2, z0, z1, z2;
     if(this->digits.size() <= numZero) {
@@ -630,19 +645,12 @@ Longnums Longnums::operator*(Longnums X) {
       y2.digits.erase(y2.digits.begin());
     }
 
-
-    //std::cout << *this << " as X splits into " << x1 << " and " << x2 << std::endl;
-    //std::cout << X << " as Y splits into " << y1 << " and " << y2 << std::endl;
-
-
     //to find z2
     z2 = x1 * y1;
-    //std::cout << "z2 for " << x1 << " and " << y1 << " calculated" << std::endl;
 
     //to find z0
-    //std::cout << "z1 is " << x2 << " times " << y2 << std::endl;
-    z0 = x2 * y2;
-    //std::cout << "z0 for " << x2 << " and " << y2 << " calculated" << std::endl;
+		z0 = x2 * y2;
+		
     //to find z1
     {
       Longnums sumX, sumY, prodSums;
@@ -651,8 +659,6 @@ Longnums Longnums::operator*(Longnums X) {
       prodSums = sumX * sumY;
 
       z1 = prodSums - z2 - z0;
-      //std::cout << "product of sums is " << prodSums << std::endl;
-      //std::cout << "No issues for z1" << std::endl;
     }
 
     //get the answer
@@ -665,55 +671,20 @@ Longnums Longnums::operator*(Longnums X) {
       if(i <= numZero && z1 != 0) {
         z1.digits.push_back(0);
       }
-    }
-
-    //std::cout << (*this) << " times " << X << std::endl;
-
-    //std::cout << "Zeroes appended" << std::endl;
-    //std::cout << "answer will be " << z2 << " + " << z1 << " + " << z0 << std::endl;
-
-    //answer  = z2 + z11 + z0
+		}
+		
     answer = z2 + z1 + z0;
-
-    //std::cout << "x1 is " << x1 << " and x2 is " << x2 << std::endl
-    //          << "y1 is " << y1 << " and y2 is " << y2 << std::endl
-    //          << "z1 is " << z1 << "\nz2 is " << z2 << "\nz0 is " << z0 << std::endl;
-  }
-
-
-
-  /*
-  Longnums product;
-  int carryover, count = 0, prod_temp;
-  for (auto multiplier = X.digits.end() - 1; multiplier >= X.digits.begin();
-      multiplier--) {
-    product.digits.erase(product.digits.begin(), product.digits.end());  //algorithm is traditional long multiplication algorithm
-    carryover = 0;
-    for (int i = 0; i < count; i++) {
-      product.digits.push_back(0);  //number of zeros the temporaryproduct should have at the end
-    }
-
-    for (auto multiplicand = digits.end() - 1; multiplicand >= digits.begin();
-        multiplicand--) {
-      prod_temp = ((*multiplicand) * (*multiplier)) + carryover;
-      carryover = prod_temp / 10;
-      prod_temp %= 10;
-      product.digits.insert(product.digits.begin(), prod_temp);
-    }
-    if (carryover > 0) {
-      product.digits.insert(product.digits.begin(), carryover);
-    }
-
-    answer = answer + product;
-
-    count++;
-  }
-  */
+	}
+	
+	//std::cout  << answer << std::endl;
 
   return answer;
 }
 
 Longnums Longnums::operator*(long int X) {
+	if(X == 0) {
+		return Longnums();
+	} else {
   Longnums answer;
   long int product = 0, carry = 0;
   answer.digits.erase(answer.digits.begin(), answer.digits.end());
@@ -730,18 +701,17 @@ Longnums Longnums::operator*(long int X) {
   }
 
   return answer;
+	}
 }
 
 Longnums Longnums::operator/(Longnums X) {
-  Longnums quotient, divisor, dividend;
-  dividend.digits = digits;
-  divisor.digits = X.digits;
+  Longnums quotient;//, divisor, dividend;
+  //dividend.digits = digits;
+  //divisor.digits = X.digits;
 
-  if (dividend < divisor) {
+  /*if ((*this) < X) {
     return quotient;       //quotient is initialized to 0 by default constructor
-  }
-
-  else if (dividend == divisor) {
+  } else if ((*this) == X) {
     quotient.digits[0] = 1;                          //the 0 gets converted to 1
 
     if (negative != X.negative) {
@@ -751,35 +721,36 @@ Longnums Longnums::operator/(Longnums X) {
     }
 
     return quotient;
-  }
-
-  else if (divisor == 0) {	//check iif divisor is 0, since quotient as of now is 0 as well
-    std::cerr << "Cannot divide by 0" << std::endl;
-    return quotient;
-  }
-
-  else {
+	} else */
+	if(digits.size() < X.digits.size()){
+		return quotient;
+	}if (X == 0) {	//check if divisor is 0, since quotient as of now is 0 as well
+    throw "Cannot divide by 0";
+  } else {
+/*
     Longnums part_rem, temp_dividend;    //partial remainder, temporary dividend
     int q;                                             //a digit of the quotient
 
-    temp_dividend.digits = std::vector<int>(dividend.digits.begin(), dividend.digits.begin() + divisor.digits.size());
+
+    temp_dividend.digits = std::vector<int>(digits.begin(), digits.begin() + X.digits.size());
     //using the constructor for vector
     quotient.digits.pop_back();
 
-    for (auto iter = dividend.digits.begin() + divisor.digits.size() - 1;
-        iter < dividend.digits.end(); iter++) {
+    for (auto iter = digits.begin() + X.digits.size() - 1;
+        iter < digits.end(); iter++) {
       for (int i = 1; i <= 10; i++) {  //the following algorithm is the same as the long division algorithm
-        if ((divisor * i) > temp_dividend) {
+        if ((X * i) > temp_dividend) {
           q = i - 1;
           break;
         }
       }
-
+			
       quotient.digits.push_back(q);
-      part_rem = divisor * q;
+      part_rem = X * q;
       part_rem = temp_dividend - part_rem;
+			
 
-      if (part_rem.digits[0] == 0) {
+      if (part_rem == 0) {
         temp_dividend.digits.erase(temp_dividend.digits.begin(),
                                    temp_dividend.digits.end());
       }
@@ -788,7 +759,7 @@ Longnums Longnums::operator/(Longnums X) {
         temp_dividend.digits = part_rem.digits;
       }
 
-      if (iter != dividend.digits.end() - 1) {
+      if (iter != digits.end() - 1) {
         temp_dividend.digits.push_back(*(iter + 1));
       }
 
@@ -806,6 +777,13 @@ Longnums Longnums::operator/(Longnums X) {
     }
 
     return quotient;
+	*/
+	
+		//algorithm using repeated subtractions
+		Longnums temp_dividend = (*this), temp_divisor = X;
+		Longnums q;
+		q = (long int) std::pow(10, digits.size() - X.digits.size());
+		temp_dividend = temp_dividend - temp_divisor * q;
   }
 }
 
