@@ -727,7 +727,7 @@ Longnums Longnums::operator/(Longnums X) {
 	}if (X == 0) {	//check if divisor is 0, since quotient as of now is 0 as well
     throw "Cannot divide by 0";
   } else {
-/*
+
     Longnums part_rem, temp_dividend;    //partial remainder, temporary dividend
     int q;                                             //a digit of the quotient
 
@@ -777,13 +777,13 @@ Longnums Longnums::operator/(Longnums X) {
     }
 
     return quotient;
-	*/
 	
+	/*
 		//algorithm using repeated subtractions
 		Longnums temp_dividend = (*this), temp_divisor = X;
 		Longnums q;
 		q = (long int) std::pow(10, digits.size() - X.digits.size());
-		temp_dividend = temp_dividend - temp_divisor * q;
+		temp_dividend = temp_dividend - temp_divisor * q;*/
   }
 }
 
