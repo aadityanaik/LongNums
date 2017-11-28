@@ -6,6 +6,9 @@ Supports only integers of extreme lengths (max length yet to be determined).
 Supports addition, subtraction, multiplication, division (integer division) and modulus, as well as comparisons with other LongNums or 'int's.
 <br/>
 <p>
+  <h1>NOTE:-</h1><br/>
+  The code in the unstable branch is not completely and thoroughly tested. It may produce errors and anomalies if used.<br/>
+<p>
   <h1>Addition:</h1><br/>
   One can simply add two objects of Longnums type or a Longnum objet with an integer using the + symbol-<br/>
   ans = x + y;<br/>
