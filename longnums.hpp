@@ -7,6 +7,9 @@ class Longnums {
   std::vector<int> digits;
   bool negative;
 
+
+	void operator=(std::vector<int>&);
+
 public:
   //constructor
   Longnums();
@@ -14,33 +17,34 @@ public:
   //destructor
   ~Longnums();
 
-  //input-output functions
-  int get();
-  int put();
-
   //overloading input and output operators
-  friend std::ostream &operator<<(std::ostream& output, Longnums& X);
+  friend std::ostream& operator<<(std::ostream& output, const Longnums& X);
 
   friend std::istream& operator>>(std::istream& input, Longnums& X);
 
 
   //comparing numbers
-  bool operator<(Longnums);
-  bool operator<(int);
-  bool operator>(Longnums);
-  bool operator>(int);
-  bool operator==(Longnums);
-  bool operator==(int);
-  bool operator<=(Longnums);
-  bool operator<=(int);
-  bool operator>=(Longnums);
-  bool operator>=(int);
-  bool operator!=(Longnums);
-  bool operator!=(int);
+  bool operator<(const Longnums&);
+  bool operator<(const int&);
+  bool operator>(const Longnums&);
+  bool operator>(const int&);
+  bool operator==(const Longnums&);
+  bool operator==(const int&);
+  bool operator<=(const Longnums&);
+  bool operator<=(const int&);
+  bool operator>=(const Longnums&);
+  bool operator>=(const int&);
+  bool operator!=(const Longnums&);
+  bool operator!=(const int&);
 
   //Equality functions
-  Longnums(Longnums&);
-  void operator=(int);
+  Longnums(const Longnums&);
+  void operator=(const long int&);
+	void operator=(const std::string&);
+	void operator=(const std::vector<int>&);
+
+  //converting to int
+  int toInt();
 
   //absolute value
   Longnums absolute();
@@ -51,7 +55,7 @@ public:
   Longnums operator-(Longnums);
   Longnums operator-(int);
   Longnums operator*(Longnums);
-  Longnums operator*(int);
+  Longnums operator*(long int);
   Longnums operator/(Longnums);
   Longnums operator/(int);
   Longnums operator%(Longnums);
