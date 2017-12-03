@@ -7,6 +7,9 @@ class Longnums {
   std::vector<int> digits;
   bool negative;
 
+
+	void operator=(std::vector<int>&);
+
 public:
   //constructor
   Longnums();
@@ -38,6 +41,7 @@ public:
   Longnums(const Longnums&);
   void operator=(const long int&);
 	void operator=(const std::string&);
+	void operator=(const std::vector<int>&);
 
   //converting to int
   int toInt();
