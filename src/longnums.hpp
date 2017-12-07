@@ -6,9 +6,7 @@
 class Longnums {
   std::vector<int> digits;
   bool negative;
-
-
-	void operator=(std::vector<int>&);
+	int base;
 
 public:
   //constructor

@@ -1,43 +1,42 @@
 #include <iostream>
-#include <ctime>
+#include <climits>
 #include "longnums.hpp"
 
 int main()
 {
   Longnums x, y;
+
+
   //input
 
   std::cin >> x;
   std::cin >> y;
+  std::cout << x << "\n" << y << "\n\n";
 
-  std::cout << x << std::endl << y << std::endl << std::endl;
 
 	//addition
-
-  std::cout << "Addition" << std::endl;
-  std::cout << (x + y) << std::endl;
+  std::cout << "Addition" << "\n";
+  std::cout << (x + y) << "\n";
 
 	//subtraction
 
-  std::cout << "Subtraction" << std::endl;
-  std::cout << (x - y) << std::endl;
+  std::cout << "Subtraction" << "\n";
+  std::cout << (x - y) << "\n";
 
 	//multiplication
-
-  std::cout << "Multiplication" << std::endl;
-  std::cout << (x * y) << std::endl;
+  std::cout << "Multiplication" << "\n";
+  std::cout << (x * y) << "\n";
 
 
 	//division
-
-  std::cout << "Division" << std::endl;
-  std::cout << (x / y) << std::endl;
+  std::cout << "Division" << "\n";
+  std::cout << (x / y) << "\n";
 
 
 	//modulus
 
-  std::cout << "Modulus" << std::endl;
-  std::cout << (x % y) << std::endl;
+  std::cout << "Modulus" << "\n";
+  std::cout << (x % y) << "\n";
 
   return 0;
 }
