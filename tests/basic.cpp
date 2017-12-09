@@ -3,7 +3,7 @@
 #include "./test_util.hpp"
 
 void testAbsoluteValue() {
-  Longnums x, y, r;
+  longnums::Longnums x, y, r;
   x = "1", r = x.absolute();
   CHECK_EQUAL(r.toInt(), 1);
   x = "-1", r = x.absolute();
@@ -24,7 +24,7 @@ void testAbsoluteValue() {
 }
 
 void testAddition() {
-  Longnums x, y, r;
+  longnums::Longnums x, y, r;
   x = "1", y = "1", r = x + y;
   CHECK_EQUAL(r.toInt(), 2);
   x = "1", y = "-1", r = x + y;
@@ -49,7 +49,7 @@ void testAddition() {
 }
 
 void testSubstraction() {
-  Longnums x, y, r;
+  longnums::Longnums x, y, r;
   x = "1", y = "1", r = x - y;
   CHECK_EQUAL(r.toInt(), 0);
   x = "4", y = "7", r = x - y;
