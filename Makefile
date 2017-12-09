@@ -12,10 +12,10 @@ bin/tests: bin tests/basic.cpp obj/test_util.o obj/longnums.o
 	g++ $(LDFLAGS) -o bin/tests tests/basic.cpp obj/test_util.o obj/longnums.o
 
 obj/longnums.o: obj src/longnums.cpp src/longnums.hpp
-	g++ $(CPPFLAGS) -o obj/longnums.o -c src/longnums.cpp
+	g++ $(CPPFLAGS) -o obj/longnums.o -c src/longnums.cpp -O3
 
 obj/test_util.o: obj tests/test_util.cpp tests/test_util.hpp
-	g++ $(CPPFLAGS) -o obj/test_util.o -c tests/test_util.cpp
+	g++ $(CPPFLAGS) -o obj/test_util.o -c tests/test_util.cpp -O3
 
 test: bin/tests
 	./bin/tests
