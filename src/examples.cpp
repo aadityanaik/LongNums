@@ -1,10 +1,9 @@
 #include <iostream>
-#include <climits>
 #include "longnums.hpp"
 
 int main()
 {
-  Longnums x, y;
+  longnums::Longnums x, y;
 
 
   //input
