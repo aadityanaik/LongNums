@@ -12,6 +12,7 @@ public:
 	LongNumber();
 	LongNumber(const LongNumber&);
 	LongNumber(const long int&);
+	LongNumber(const std::string&);
 
 	//destructor
 	~LongNumber();

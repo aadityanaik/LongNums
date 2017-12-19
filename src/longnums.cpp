@@ -46,6 +46,10 @@ LongNumber::LongNumber(const LongNumber& X) {
 	negative = X.negative;
 }
 
+LongNumber::LongNumber(const std::string& X) {
+	(*this) = X;
+}
+
 LongNumber::LongNumber(const long int& X) {
 	(*this) = X;
 }
