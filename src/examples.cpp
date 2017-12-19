@@ -1,17 +1,16 @@
 #include <iostream>
+#include <climits>
 #include "longnums.hpp"
 
 int main()
 {
-  longnums::Longnums x, y;
-
+  LongNumber x, y;
 
   //input
 
   std::cin >> x;
   std::cin >> y;
   std::cout << x << "\n" << y << "\n\n";
-
 
 	//addition
   std::cout << "Addition" << "\n";
@@ -25,7 +24,6 @@ int main()
 	//multiplication
   std::cout << "Multiplication" << "\n";
   std::cout << (x * y) << "\n";
-
 
 	//division
   std::cout << "Division" << "\n";
