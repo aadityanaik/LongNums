@@ -3,3 +3,8 @@ obj/*
 
 # Binaries.
 bin/*
+
+# The input, output and control files from ./tests/bashtests, if they remain
+input
+control
+output
