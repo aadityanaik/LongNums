@@ -20,6 +20,9 @@ obj/test_util.o: obj tests/test_util.cpp tests/test_util.hpp
 test: bin/tests
 	./bin/tests
 
+examples: bin/examples
+	./tests/bashtests/Longnumtester.sh
+
 obj:
 	mkdir -p obj/
 
