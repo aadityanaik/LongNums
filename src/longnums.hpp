@@ -3,62 +3,62 @@
 
 #include <vector>
 
-namespace longnums {
-	class Longnums {
-		std::vector<int> digits;
-		bool negative;
-		int base;
+class LongNumber {
+	std::vector<int> digits;
+	bool negative;
 
-	public:
-		//constructor
-		Longnums();
+public:
+	//constructor
+	LongNumber();
+	LongNumber(const LongNumber&);
+	LongNumber(const long int&);
 
-		//destructor
-		~Longnums();
+	//destructor
+	~LongNumber();
 
-		//overloading input and output operators
-		friend std::ostream& operator<<(std::ostream& output, const Longnums& X);
+	//overloading input and output operators
+	friend std::ostream& operator<<(std::ostream& output, const LongNumber& X);
 
-		friend std::istream& operator>>(std::istream& input, Longnums& X);
+	friend std::istream& operator>>(std::istream& input, LongNumber& X);
 
 
-		//comparing numbers
-		bool operator<(const Longnums&);
-		bool operator<(const int&);
-		bool operator>(const Longnums&);
-		bool operator>(const int&);
-		bool operator==(const Longnums&);
-		bool operator==(const int&);
-		bool operator<=(const Longnums&);
-		bool operator<=(const int&);
-		bool operator>=(const Longnums&);
-		bool operator>=(const int&);
-		bool operator!=(const Longnums&);
-		bool operator!=(const int&);
+	//comparing numbers
+	bool operator<(const LongNumber&);
+	bool operator>(const LongNumber&);
+	bool operator==(const LongNumber&);
+	bool operator<=(const LongNumber&);
+	bool operator>=(const LongNumber&);
+	bool operator!=(const LongNumber&);
 
-		//Equality functions
-		Longnums(const Longnums&);
-		void operator=(const long int&);
-		void operator=(const std::string&);
-		void operator=(const std::vector<int>&);
+	//Equality functions
+	void operator=(const long int&);
+	void operator=(const std::string&);
 
-		//converting to int
-		int toInt();
+	//converting to int
+	long int toLong();
 
-		//absolute value
-		Longnums absolute();
+	//absolute value
+	LongNumber absolute();
 
-		//primary operations- adding, subtracting, multiplying and dividing
-		Longnums operator+(Longnums);
-		Longnums operator+(int);
-		Longnums operator-(Longnums);
-		Longnums operator-(int);
-		Longnums operator*(Longnums);
-		Longnums operator*(long int);
-		Longnums operator/(Longnums);
-		Longnums operator/(int);
-		Longnums operator%(Longnums);
-		Longnums operator%(int);
-	};
-}
+	//primary operations(binary) - adding, subtracting, multiplying and dividing
+	LongNumber operator+(LongNumber);
+	LongNumber operator-(LongNumber);
+	LongNumber operator*(LongNumber);
+	LongNumber operator*(long int);
+	LongNumber operator/(LongNumber);
+	LongNumber operator%(LongNumber);
+
+	void operator+=(LongNumber);
+	void operator-=(LongNumber);
+	void operator*=(LongNumber);
+	void operator/=(LongNumber);
+	void operator%=(LongNumber);
+
+	//operations (unary)
+	LongNumber operator++();
+	LongNumber operator++(int);
+	LongNumber operator--();
+	LongNumber operator--(int);
+};
+
 #endif // LONGNUMS_H
