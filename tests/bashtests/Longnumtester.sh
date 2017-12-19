@@ -9,7 +9,7 @@ function calc {                                                                 
   BC_LINE_LENGTH=0 bc
 }
 
-while                                                                           #diff -q output test
+while                                                                           
   NUM1=$(echo "$((RANDOM - 16383))" ^ "$((RANDOM % 1000))" | calc)                            #refers to x in examples.cpp
 
   NUM2=$(echo "$((RANDOM - 16383))" ^ "$((RANDOM % 1000))" | calc)                            #refers to y in examples.cpp
@@ -19,19 +19,19 @@ while                                                                           
 
   echo $NUM2 >> input                                                           #y
 
-  # to generate a test file
-  echo $NUM1 > test
-  echo -e "$NUM2\n" >> test
-  echo Addition >> test
-  echo $(echo $NUM1 + $NUM2 | calc) >> test
-  echo Subtraction >> test
-  echo $(echo $NUM1 - $NUM2 | calc) >> test
-  echo Multiplication >> test 
-  echo $(echo $NUM1 '*' $NUM2 | calc) >> test  
-  echo Division >> test 
-  echo $(echo $NUM1 / $NUM2 | calc) >> test  
-  echo Modulus >> test  
-  echo $(echo $NUM1 % $NUM2 | calc) >> test
+  # to generate a control file
+  echo $NUM1 > control
+  echo -e "$NUM2\n" >> control
+  echo Addition >> control
+  echo $(echo $NUM1 + $NUM2 | calc) >> control
+  echo Subtraction >> control
+  echo $(echo $NUM1 - $NUM2 | calc) >> control
+  echo Multiplication >> control 
+  echo $(echo $NUM1 '*' $NUM2 | calc) >> control  
+  echo Division >> control 
+  echo $(echo $NUM1 / $NUM2 | calc) >> control  
+  echo Modulus >> control  
+  echo $(echo $NUM1 % $NUM2 | calc) >> control
 
   # to generate output
   ./bin/examples < input > output
@@ -43,11 +43,11 @@ do
     break
   fi
 
-  ( diff output test && echo "Test $index successful" ) || exit 1               #tells when both files (output and test) are different which indicates a bug in Longnums.cpp
+  ( diff output control && echo "Test $index successful" ) || exit 1               #tells when both files (output and test) are different which indicates a bug in Longnums.cpp
 
 done
 
 if [ $? -eq 0 ]                                                                 #if everything's hunky-dory
 then
-  echo "All tests successful" && rm input output test
+  echo "All tests successful" && rm input output control
 fi
